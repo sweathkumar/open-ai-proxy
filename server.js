@@ -41,7 +41,7 @@ app.post('/api/ask-ai', async (req, res) => {
     );
 
     const rawContent = response.data.choices[0].message.content || "";
-    const cleanedContent = rawContent.replace(/\\n/g, "").replace(/\n/g, "");
+    const cleanedContent = rawContent.replace(/\\n/g, "").replace(/\n/g, "").replace(/<\/strong>\\n\\n/g, '</strong><br>').replace(/<\/strong>\n\n/g, '</strong><br>');
 
     res.json({ response: cleanedContent });
   } catch (err) {
