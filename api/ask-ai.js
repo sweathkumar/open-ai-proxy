@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
     );
 
     const rawContent = response.data.choices?.[0]?.message?.content || "No content";
-    const cleanedContent = rawContent.replace(/\\n/g, "<br>").replace(/\n/g, "<br>");
+    const cleanedContent = rawContent.replace(/\\n/g, "").replace(/\n/g, "");
     return res.status(200).json({ response: cleanedContent });
   } catch (err) {
     console.error(err.response?.data || err.message);
