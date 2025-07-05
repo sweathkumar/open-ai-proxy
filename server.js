@@ -1,57 +1,48 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const axios = require("axios");
-
-dotenv.config();
+require('dotenv').config();
+const express = require('express');
+const axios = require('axios');
+const cors = require('cors');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.post("/ask-ai", async (req, res) => {
-  const userPrompt = req.body.prompt;
+app.post('/api/ask-ai', async (req, res) => {
+  const prompt = req.body.prompt;
   const apiKey = process.env.OPENROUTER_API_KEY;
 
-  if (!userPrompt || !apiKey) {
-    return res.status(400).json({ error: "Missing prompt or API key." });
+  if (!prompt || !apiKey) {
+    return res.status(400).json({ error: 'Missing prompt or API key.' });
   }
 
   try {
-    const openRes = await axios.post(
+    const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
         model: "mistralai/mistral-7b-instruct:free",
         messages: [
           {
             role: "system",
-            content: `
-Respond in plain text. If the response contains lines that look like section titles, wrap those lines in <strong>...</strong>.
-If the response has multiple paragraphs or sections, separate them using <br><br>.
-Do not use <p> tags, list bullets, or Markdown. The final output should be clean HTML suitable to set directly into a <p> element using .innerHTML.
-Maximum 5000 characters total.`
+            content: `Respond in HTML using <strong> for titles and <br><br> between paragraphs.`
           },
-          { role: "user", content: userPrompt }
+          { role: "user", content: prompt }
         ]
       },
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "http://localhost", // or your domain
+          "HTTP-Referer": "http://localhost",
           "X-Title": "AI Space"
         }
       }
     );
 
-    const content = openRes.data?.choices?.[0]?.message?.content || "";
-    res.json({ content });
+    res.json({ response: response.data.choices[0].message.content });
   } catch (err) {
     console.error(err.response?.data || err.message);
-    res.status(500).json({ error: "AI request failed." });
+    res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-app.listen(3001, () => {
-  console.log("Server running on http://localhost:3001");
-});
+app.listen(3000, () => console.log('Server running on http://localhost:3000'));

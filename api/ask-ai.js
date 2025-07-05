@@ -1,7 +1,10 @@
 const axios = require("axios");
+import dotenv from 'dotenv';
+dotenv.config();
 
-export default async function handler(req, res) {
-  // Handle preflight (CORS)
+
+module.exports = async (req, res) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
@@ -9,7 +12,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Add CORS headers to all other responses
+  // Add CORS headers for all responses
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -54,4 +57,4 @@ export default async function handler(req, res) {
     console.error(err.response?.data || err.message);
     return res.status(500).json({ error: "Failed to fetch AI response" });
   }
-}
+};
