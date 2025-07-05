@@ -1,17 +1,19 @@
 const axios = require("axios");
 
 export default async function handler(req, res) {
-  // ✅ Set CORS headers
+  // Handle preflight (CORS)
+  if (req.method === 'OPTIONS') {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+    return res.status(200).end();
+  }
+
+  // Add CORS headers to all other responses
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-  // ✅ Handle preflight request
-  if (req.method === "OPTIONS") {
-    return res.status(200).end();
-  }
-
-  // ✅ Block non-POST requests
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
@@ -31,7 +33,7 @@ export default async function handler(req, res) {
         messages: [
           {
             role: "system",
-            content: `Respond in plain text. If the response contains lines that look like section titles, wrap those lines in <strong>...</strong>. Use <br><br> between paragraphs.`
+            content: `Respond in plain text. Wrap section titles in <strong> and use <br><br> for new paragraphs.`
           },
           { role: "user", content: userPrompt }
         ]
