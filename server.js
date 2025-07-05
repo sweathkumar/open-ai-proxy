@@ -25,7 +25,7 @@ app.post('/api/ask-ai', async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `Respond in HTML using <strong> for titles and <br><br> between paragraphs.`
+            content: `Respond only in raw HTML. Wrap section titles in <strong>...</strong>. Separate paragraphs with <br><br>. Do NOT use Markdown (like **text**), and avoid \\n. Only return clean HTML usable in a <p> tag not include <p> in response  with .innerHTML.`
           },
           { role: "user", content: prompt }
         ]
@@ -40,7 +40,10 @@ app.post('/api/ask-ai', async (req, res) => {
       }
     );
 
-    res.json({ response: response.data.choices[0].message.content });
+    const rawContent = response.data.choices[0].message.content || "";
+    const cleanedContent = rawContent.replace(/\\n/g, "<br>").replace(/\n/g, "<br>");
+
+    res.json({ response: cleanedContent });
   } catch (err) {
     console.error(err.response?.data || err.message);
     res.status(500).json({ error: "Something went wrong" });

@@ -1,19 +1,15 @@
-import dotenv from 'dotenv';
-import axios from 'axios';
-// const axios = require("axios");
+const dotenv = require("dotenv");
+const axios = require("axios");
 dotenv.config();
 
-console.log("API Key:", process.env.OPENAI_API_KEY?.slice(0, 10));
 module.exports = async (req, res) => {
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
+  if (req.method === "OPTIONS") {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
     return res.status(200).end();
   }
 
-  // Add CORS headers for all responses
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -24,8 +20,6 @@ module.exports = async (req, res) => {
 
   const apiKey = process.env.OPENAI_API_KEY;
   const userPrompt = req.body.prompt;
-
-  console.log("keys", apiKey,userPrompt)
 
   if (!userPrompt || !apiKey) {
     return res.status(400).json({ error: "Missing prompt or API key." });
@@ -39,23 +33,25 @@ module.exports = async (req, res) => {
         messages: [
           {
             role: "system",
-            content: `Respond in plain text. Wrap section titles in <strong> and use <br><br> for new paragraphs.`
+            content:
+              'Respond only in raw HTML. Wrap section titles in <strong>...</strong>. Separate paragraphs with <br><br>. Do NOT use Markdown (like **text**), and avoid \\n. Only return clean HTML usable in a <p> tag not include <p> in response  with .innerHTML.'
           },
-          { role: "user", content: userPrompt }
-        ]
+          { role: "user", content: userPrompt },
+        ],
       },
       {
         headers: {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
-          "HTTP-Referer": "https://yourdomain.com",
-          "X-Title": "AI Space"
-        }
+          "HTTP-Referer": "https://open-ai-proxy-one.vercel.app",
+          "X-Title": "AI Space",
+        },
       }
     );
 
-    const content = response.data.choices?.[0]?.message?.content || "No content";
-    return res.status(200).json({ response: content });
+    const rawContent = response.data.choices?.[0]?.message?.content || "No content";
+    const cleanedContent = rawContent.replace(/\\n/g, "<br>").replace(/\n/g, "<br>");
+    return res.status(200).json({ response: cleanedContent });
   } catch (err) {
     console.error(err.response?.data || err.message);
     return res.status(500).json({ error: "Failed to fetch AI response" });
