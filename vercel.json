@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/ask-ai.js",
+      "use": "@vercel/node"
+    }
+  ]
+}
