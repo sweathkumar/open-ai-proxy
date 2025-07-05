@@ -9,7 +9,9 @@ app.use(express.json());
 
 app.post('/api/ask-ai', async (req, res) => {
   const prompt = req.body.prompt;
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
+
+    console.log("server", apiKey,prompt)
 
   if (!prompt || !apiKey) {
     return res.status(400).json({ error: 'Missing prompt or API key.' });

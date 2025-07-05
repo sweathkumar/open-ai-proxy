@@ -1,8 +1,9 @@
-const axios = require("axios");
 import dotenv from 'dotenv';
+import axios from 'axios';
+// const axios = require("axios");
 dotenv.config();
 
-
+console.log("API Key:", process.env.OPENAI_API_KEY?.slice(0, 10));
 module.exports = async (req, res) => {
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
@@ -21,8 +22,10 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   const userPrompt = req.body.prompt;
+
+  console.log("keys", apiKey,userPrompt)
 
   if (!userPrompt || !apiKey) {
     return res.status(400).json({ error: "Missing prompt or API key." });
